@@ -6,6 +6,7 @@
 #include <QGraphicsView>
 #include <QTreeWidgetItem>
 #include "gxtfile.h"
+#include "catfile.h"
 
 using std::vector;
 
@@ -32,7 +33,8 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    QVector<GxtFile*> gxtFiles;
+    ResourceFile *openedResource;
+    //QVector<GxtFile*> gxtFiles;
     //QVector<CatFile*> catFiles;
     QGraphicsScene *scene;
     QByteArray *selectedImageData;

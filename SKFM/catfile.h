@@ -1,15 +1,13 @@
-#ifndef GXTFILE_H
-#define GXTFILE_H
+#ifndef CATFILE_H
+#define CATFILE_H
 
-#include <QString>
-#include <QPixmap>
+#include<QPixmap>
 #include "resourcefile.h"
 
-class GxtFile : public ResourceFile
+class CatFile : public ResourceFile
 {
 public:
-    GxtFile(QString filePath);
-    ~GxtFile();
+    CatFile(QString);
     int getHeaderSize();
     int getFileCount();
     int getFileSize();
@@ -20,6 +18,8 @@ public:
     QByteArray readFileData(int);
 private:
     int headerSize;
+    int extraData;
+    int extraSize;
     int fileCount;
     int fileSize;
     int* contentOffsets;
@@ -27,4 +27,4 @@ private:
     QString location;
 };
 
-#endif // GXTFILE_H
+#endif // CATFILE_H

@@ -37,26 +37,35 @@ void MainWindow::on_actionOpen_triggered()
                 this,
                 "Open File",
                 lastOpenedPath.isEmpty() ? QDir::homePath() : lastOpenedPath,
-                "Senran Kagura Resource File (*.gxt)");
+                "Senran Kagura Resource File (*.gxt *tex.cat)");
 
     if (!filePath.isEmpty())
     {
         QFileInfo file = QFileInfo(filePath);
         lastOpenedPath = file.absoluteDir().absolutePath();
 
-        ui->treeWidget->clear();
-
-        gxtFiles.push_back(new GxtFile(filePath));
-
         QTreeWidgetItem *item = new QTreeWidgetItem();
+        ui->treeWidget->clear();
         item->setText(0, QFileInfo(filePath).baseName());
 
-        int fileCount = gxtFiles.last()->getFileCount();
+        if (!file.suffix().compare("gxt", Qt::CaseInsensitive))
+        {
+            openedResource = new GxtFile(filePath);
+        }
+        else if (!file.suffix().compare("cat", Qt::CaseInsensitive))
+        {
+            openedResource = new CatFile(filePath);
+        }
 
-        for (int i = 0; i < fileCount; i++)
+        int fileCount = openedResource->getFileCount();
+
+        for (int i = 1; i <= fileCount; i++)
         {
             QTreeWidgetItem *childItem = new QTreeWidgetItem();
-            childItem->setText(0, QString::number(i + 1));
+
+            QString childText = QString::number(i);
+
+            childItem->setText(0, childText);
             item->addChild(childItem);
         }
         ui->treeWidget->addTopLevelItem(item);
@@ -99,7 +108,18 @@ void MainWindow::on_treeWidget_itemSelectionChanged()
 void MainWindow::loadImageToView(int index)
 {
     scene->clear();
-    QPixmap pixmap = gxtFiles.last()->readDDSFile(index);
+    QFileInfo fileInfo = QFileInfo(openedResource->getFileLocation());
+    QPixmap pixmap;
+    if (!fileInfo.suffix().compare("gxt", Qt::CaseInsensitive))
+    {
+        GxtFile *gxtFile = dynamic_cast<GxtFile *>(openedResource);
+        pixmap = gxtFile->readDDSFile(index);
+    }
+    else if (!fileInfo.suffix().compare("cat", Qt::CaseInsensitive))
+    {
+        CatFile *catFile = dynamic_cast<CatFile *>(openedResource);
+        pixmap = catFile->readDDSFile(index);
+    }
     scene->setSceneRect(0, 0, pixmap.width(), pixmap.height());
     QGraphicsPixmapItem *texture =  new QGraphicsPixmapItem(pixmap);
     scene->addItem(texture);
@@ -116,10 +136,24 @@ void MainWindow::on_actionSave_triggered()
                     "Save File",
                     QDir::homePath(),
                     "DirectDraw Surface (*.dds)");
+
         QFile file(path);
+        QFileInfo fileInfo = QFileInfo(openedResource->getFileLocation());
+
         if(!file.open(QIODevice::WriteOnly))
             return;
-        file.write(gxtFiles.last()->readFileData(getSelectedItem()));
+
+        if (!fileInfo.suffix().compare("gxt", Qt::CaseInsensitive))
+        {
+            GxtFile *gxtFile = dynamic_cast<GxtFile *>(openedResource);
+            file.write(gxtFile->readFileData(getSelectedItem()));
+        }
+        else if (!fileInfo.suffix().compare("cat", Qt::CaseInsensitive))
+        {
+            CatFile *catFile = dynamic_cast<CatFile *>(openedResource);
+            file.write(catFile->readFileData(getSelectedItem()));
+        }
+
         file.close();
     }
 }

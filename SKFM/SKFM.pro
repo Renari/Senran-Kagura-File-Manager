@@ -8,15 +8,19 @@ QT       += core gui opengl
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = SKM
+TARGET = SKFM
 TEMPLATE = app
 
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    gxtfile.cpp
+    gxtfile.cpp \
+    catfile.cpp \
+    resourcefile.cpp
 
 HEADERS  += mainwindow.h \
-    gxtfile.h
+    gxtfile.h \
+    catfile.h \
+    resourcefile.h
 
 FORMS    += mainwindow.ui
