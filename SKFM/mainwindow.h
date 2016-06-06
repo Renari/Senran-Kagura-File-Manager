@@ -37,7 +37,6 @@ private:
     //QVector<GxtFile*> gxtFiles;
     //QVector<CatFile*> catFiles;
     QGraphicsScene *scene;
-    QByteArray *selectedImageData;
     void resizeEvent(QResizeEvent*);
     void scaleGraphicsView();
     void loadImageToView(int);

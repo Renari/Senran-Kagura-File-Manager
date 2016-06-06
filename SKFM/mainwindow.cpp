@@ -29,6 +29,7 @@ MainWindow::~MainWindow()
 {
     delete ui;
     delete scene;
+    delete openedResource;
 }
 
 void MainWindow::on_actionOpen_triggered()
