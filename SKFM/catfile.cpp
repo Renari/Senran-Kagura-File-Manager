@@ -84,7 +84,7 @@ QByteArray CatFile::readFileData(int index)
 
     int size;
 
-    // if this is the last file the file ends at the end of the gxt file
+    // if this is the last file the file ends at the end of the cat file
     if (index == fileCount)
     {
         size = stream.size() - contentOffsets[index - 1] - extraData - extraSize;
