@@ -31,6 +31,11 @@ CatFile::CatFile(QString filePath)
     file.close();
 }
 
+CatFile::~CatFile()
+{
+    delete[] contentOffsets;
+}
+
 int CatFile::getHeaderSize()
 {
     return headerSize;
