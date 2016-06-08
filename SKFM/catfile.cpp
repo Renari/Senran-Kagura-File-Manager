@@ -2,6 +2,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QMessageBox>
+#include <QBuffer>
 
 CatFile::CatFile(QString filePath)
 {
@@ -21,17 +22,18 @@ CatFile::CatFile(QString filePath)
         return;
     }
 
-    QDataStream stream(&fileData, QIODevice::ReadOnly);
-    stream.read((char*)&headerSize, sizeof(int));
-    stream.read((char*)&extraData, sizeof(int));
-    stream.seek(extraData);
-    stream.read((char*)&extraSize, sizeof(int));
-    stream.read((char*)&fileCount, sizeof(int));
-    stream.read((char*)&fileSize, sizeof(int));
+    QBuffer buffer(&fileData);
+    buffer.open(QBuffer::ReadOnly);
+    buffer.read((char*)&headerSize, sizeof(int));
+    buffer.read((char*)&extraData, sizeof(int));
+    buffer.seek(extraData);
+    buffer.read((char*)&extraSize, sizeof(int));
+    buffer.read((char*)&fileCount, sizeof(int));
+    buffer.read((char*)&fileSize, sizeof(int));
     contentOffsets = new int[fileCount];
     for(int i = 0; i < fileCount; i++)
     {
-        stream.read((char*)&contentOffsets[i], sizeof(int));
+        buffer.read((char*)&contentOffsets[i], sizeof(int));
     }
 }
 
@@ -79,21 +81,22 @@ QByteArray CatFile::readFileData(int index)
     if (index > fileCount || index < 1)
         return QByteArray();
 
-    QDataStream stream(fileData, QIODevice::ReadOnly);
-    stream.seek(contentOffsets[index - 1] + extraData + extraSize);
+    QBuffer buffer(&fileData);
+    buffer.open(QBuffer::ReadOnly);
+    buffer.seek(contentOffsets[index - 1] + extraData + extraSize);
 
     int size;
 
     // if this is the last file the file ends at the end of the cat file
     if (index == fileCount)
     {
-        size = stream.size() - contentOffsets[index - 1] - extraData - extraSize;
+        size = buffer.size() - contentOffsets[index - 1] - extraData - extraSize;
     }
     else
     {
         size = contentOffsets[index] - contentOffsets[index - 1];
     }
-    return stream.read(size);
+    return buffer.read(size);
 }
 
 QPixmap CatFile::readDDSFile(int index)

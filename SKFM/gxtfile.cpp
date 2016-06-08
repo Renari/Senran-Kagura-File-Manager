@@ -1,8 +1,8 @@
 #include "gxtfile.h"
 #include <QFile>
 #include <QFileInfo>
-#include <QGLPixelBuffer>
 #include <QMessageBox>
+#include <QBuffer>
 
 GxtFile::GxtFile(QString filePath)
 {
@@ -22,14 +22,15 @@ GxtFile::GxtFile(QString filePath)
         return;
     }
 
-    QDataStream stream(fileData, QIODevice::ReadOnly);
-    stream.read((char*)&headerSize, sizeof(int));
-    stream.read((char*)&fileCount, sizeof(int));
-    stream.read((char*)&fileSize, sizeof(int));
+    QBuffer buffer(&fileData);
+    buffer.open(QBuffer::ReadOnly);
+    buffer.read((char*)&headerSize, sizeof(int));
+    buffer.read((char*)&fileCount, sizeof(int));
+    buffer.read((char*)&fileSize, sizeof(int));
     contentOffsets = new int[fileCount];
     for(int i = 0; i < fileCount; i++)
     {
-        stream.read((char*)&contentOffsets[i], sizeof(int));
+        buffer.read((char*)&contentOffsets[i], sizeof(int));
     }
 }
 
@@ -77,21 +78,23 @@ QByteArray GxtFile::readFileData(int index)
     if (index > fileCount || index < 1)
         return QByteArray();
 
-    QDataStream stream(fileData, QIODevice::ReadOnly);
-    stream.seek(contentOffsets[index - 1] + headerSize);
+    QBuffer buffer(&fileData);
+    buffer.open(QBuffer::ReadOnly);
+    buffer.seek(contentOffsets[index - 1] + headerSize);
 
     int size;
 
     // if this is the last file the file ends at the end of the gxt file
     if (index == fileCount)
     {
-        size = stream.size() - contentOffsets[index - 1] - headerSize;
+        size = buffer.size() - contentOffsets[index - 1] - headerSize;
     }
     else
     {
         size = contentOffsets[index] - contentOffsets[index - 1];
     }
-    return stream.read(size);
+
+    return buffer.read(size);
 }
 
 QPixmap GxtFile::readDDSFile(int index)
