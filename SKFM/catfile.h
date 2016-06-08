@@ -8,6 +8,7 @@ class CatFile : public ResourceFile
 {
 public:
     CatFile(QString);
+    ~CatFile();
     int getHeaderSize();
     int getFileCount();
     int getFileSize();
@@ -23,6 +24,7 @@ private:
     int fileCount;
     int fileSize;
     int* contentOffsets;
+    QByteArray fileData;
     QString fileName;
     QString location;
 };

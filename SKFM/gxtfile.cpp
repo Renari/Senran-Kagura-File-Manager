@@ -11,22 +11,26 @@ GxtFile::GxtFile(QString filePath)
     QFile file(filePath);
     if(file.open(QIODevice::ReadOnly))
     {
-        file.read((char*)&headerSize, sizeof(int));
-        file.read((char*)&fileCount, sizeof(int));
-        file.read((char*)&fileSize, sizeof(int));
-        contentOffsets = new int[fileCount];
-        for(int i = 0; i < fileCount; i++)
-        {
-            file.read((char*)&contentOffsets[i], sizeof(int));
-        }
+        fileData = file.readAll();
+        file.close();
     }
     else
     {
         QMessageBox msgBox;
         msgBox.setText("Unable to open " + fileName);
         msgBox.exec();
+        return;
     }
-    file.close();
+
+    QDataStream stream(fileData, QIODevice::ReadOnly);
+    stream.read((char*)&headerSize, sizeof(int));
+    stream.read((char*)&fileCount, sizeof(int));
+    stream.read((char*)&fileSize, sizeof(int));
+    contentOffsets = new int[fileCount];
+    for(int i = 0; i < fileCount; i++)
+    {
+        stream.read((char*)&contentOffsets[i], sizeof(int));
+    }
 }
 
 GxtFile::~GxtFile()
@@ -70,25 +74,21 @@ QString GxtFile::getFileLocation()
 
 QByteArray GxtFile::readFileData(int index)
 {
-    QFile file(location);
-    if(file.open(QIODevice::ReadOnly))
+    QDataStream stream(fileData);
+    stream.seek(contentOffsets[index - 1] + headerSize);
+
+    int size;
+
+    // if this is the last file the file ends at the end of the gxt file
+    if (index == fileCount)
     {
-        file.seek(contentOffsets[index - 1] + headerSize);
-
-        int size;
-
-        // if this is the last file the file ends at the end of the gxt file
-        if (index == fileCount)
-        {
-            size = file.size() - contentOffsets[index - 1] - headerSize;
-        }
-        else
-        {
-            size = contentOffsets[index] - contentOffsets[index - 1];
-        }
-        return file.read(size);
+        size = stream.size() - contentOffsets[index - 1] - headerSize;
     }
-    return QByteArray();
+    else
+    {
+        size = contentOffsets[index] - contentOffsets[index - 1];
+    }
+    return stream.read(size);
 }
 
 QPixmap GxtFile::readDDSFile(int index)

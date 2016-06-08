@@ -23,6 +23,7 @@ private:
     int fileCount;
     int fileSize;
     int* contentOffsets;
+    QByteArray fileData;
     QString fileName;
     QString location;
 };
