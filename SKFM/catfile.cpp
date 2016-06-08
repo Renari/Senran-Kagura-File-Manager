@@ -109,9 +109,13 @@ CatFile::ExtraData::ExtraData(int offset, int *fileCount, QByteArray *fileData)
     QBuffer buffer(fileData);
     buffer.open(QBuffer::ReadOnly);
     buffer.seek(offset);
-    if (buffer.peek(3).toStdString() == "GXT")
+    QByteArray gxt = buffer.peek(3);
+    if (QString(gxt.data()) == "GXT")
     {
-        throw;
+        extraHeader = 0;
+        extraCount = 0;
+        extraSize = 0;
+        return;
     }
     buffer.read((char*)&extraHeader, sizeof(extraHeader));
     buffer.read((char*)&extraCount, sizeof(extraCount));

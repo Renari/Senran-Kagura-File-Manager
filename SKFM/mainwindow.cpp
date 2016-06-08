@@ -49,8 +49,6 @@ void MainWindow::on_actionOpen_triggered()
         ui->treeWidget->clear();
         item->setText(0, QFileInfo(filePath).baseName());
 
-        try
-        {
             if (!file.suffix().compare("gxt", Qt::CaseInsensitive))
             {
                 openedResource = new GxtFile(filePath);
@@ -59,18 +57,15 @@ void MainWindow::on_actionOpen_triggered()
             {
                 openedResource = new CatFile(filePath);
             }
-        }
-        catch(int e)
-        {
-            ui->actionSave->setEnabled(false);
-            ui->treeWidget->clear();
-            QMessageBox msgBox;
-            msgBox.setText("This file isn't currently supported." + e);
-            msgBox.exec();
-            return;
-        }
 
         int fileCount = openedResource->getFileCount();
+
+        if(fileCount == 0)
+        {
+            ui->treeWidget->clear();
+            ui->actionSave->setEnabled(false);
+            return;
+        }
 
         for (int i = 1; i <= fileCount; i++)
         {
