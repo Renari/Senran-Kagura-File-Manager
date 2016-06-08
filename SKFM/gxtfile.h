@@ -8,12 +8,11 @@
 class GxtFile : public ResourceFile
 {
 public:
-    GxtFile(QString filePath);
+    GxtFile(QString);
     ~GxtFile();
     int getHeaderSize();
     int getFileCount();
     int getFileSize();
-    int getContentOffset(int);
     QString getFileName();
     QString getFileLocation();
     QPixmap readDDSFile(int);

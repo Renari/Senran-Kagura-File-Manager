@@ -54,15 +54,6 @@ int GxtFile::getFileSize()
     return fileSize;
 }
 
-int GxtFile::getContentOffset(int index)
-{
-    if (index <= fileCount && index > 0)
-    {
-        return contentOffsets[index];
-    }
-    return 0;
-}
-
 QString GxtFile::getFileName()
 {
     return fileName;

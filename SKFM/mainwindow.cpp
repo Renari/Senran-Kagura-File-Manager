@@ -2,7 +2,7 @@
 #include "ui_mainwindow.h"
 #include <QFileDialog>
 #include <QGraphicsPixmapItem>
-#include <QDebug>
+#include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -38,7 +38,7 @@ void MainWindow::on_actionOpen_triggered()
                 this,
                 "Open File",
                 lastOpenedPath.isEmpty() ? QDir::homePath() : lastOpenedPath,
-                "Senran Kagura Resource File (*.gxt *tex.cat)");
+                "Senran Kagura Resource File (*.gxt *tex*.cat *pl*.cat)");
 
     if (!filePath.isEmpty())
     {
@@ -49,13 +49,25 @@ void MainWindow::on_actionOpen_triggered()
         ui->treeWidget->clear();
         item->setText(0, QFileInfo(filePath).baseName());
 
-        if (!file.suffix().compare("gxt", Qt::CaseInsensitive))
+        try
         {
-            openedResource = new GxtFile(filePath);
+            if (!file.suffix().compare("gxt", Qt::CaseInsensitive))
+            {
+                openedResource = new GxtFile(filePath);
+            }
+            else if (!file.suffix().compare("cat", Qt::CaseInsensitive))
+            {
+                openedResource = new CatFile(filePath);
+            }
         }
-        else if (!file.suffix().compare("cat", Qt::CaseInsensitive))
+        catch(int e)
         {
-            openedResource = new CatFile(filePath);
+            ui->actionSave->setEnabled(false);
+            ui->treeWidget->clear();
+            QMessageBox msgBox;
+            msgBox.setText("This file isn't currently supported." + e);
+            msgBox.exec();
+            return;
         }
 
         int fileCount = openedResource->getFileCount();

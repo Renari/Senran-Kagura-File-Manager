@@ -34,8 +34,6 @@ private slots:
 private:
     Ui::MainWindow *ui;
     ResourceFile *openedResource;
-    //QVector<GxtFile*> gxtFiles;
-    //QVector<CatFile*> catFiles;
     QGraphicsScene *scene;
     void resizeEvent(QResizeEvent*);
     void scaleGraphicsView();
