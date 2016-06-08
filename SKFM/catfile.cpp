@@ -76,6 +76,9 @@ QString CatFile::getFileLocation()
 
 QByteArray CatFile::readFileData(int index)
 {
+    if (index > fileCount || index < 1)
+        return QByteArray();
+
     QDataStream stream(fileData, QIODevice::ReadOnly);
     stream.seek(contentOffsets[index - 1] + extraData + extraSize);
 

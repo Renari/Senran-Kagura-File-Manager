@@ -74,7 +74,10 @@ QString GxtFile::getFileLocation()
 
 QByteArray GxtFile::readFileData(int index)
 {
-    QDataStream stream(fileData);
+    if (index > fileCount || index < 1)
+        return QByteArray();
+
+    QDataStream stream(fileData, QIODevice::ReadOnly);
     stream.seek(contentOffsets[index - 1] + headerSize);
 
     int size;
